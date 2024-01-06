@@ -1,20 +1,23 @@
 import requests
 
 from pyquery import PyQuery
-from time import time
+from time import time, sleep
 from datetime import datetime
 from icecream import ic
 from urllib import request
+from APIRetrys import ApiRetry
+from concurrent.futures import ThreadPoolExecutor
+from tqdm import tqdm
 
 from src.utils.parser import Parser
 from src.utils.logs import logger
 from src.utils.corrector import vname
 from src.utils.fileIO import File
 
-
 class Publicators:
     def __init__(self) -> None:
         
+        self.__executor = ThreadPoolExecutor()
         self.__parser = Parser()
         self.__file = File()
         
@@ -35,7 +38,7 @@ class Publicators:
     
     
     def __extract_data(self, url_article: str) -> dict:
-        response = requests.get(url_article)
+        response = requests.get(url=url_article)
         html = PyQuery(response.text)
         
         BODY = html.find(selector='#sipri-2016-content')
@@ -63,6 +66,10 @@ class Publicators:
             }
         
         return content
+    
+
+    def __fetch_data_card(self):
+        pass
         
     
     def main(self):
@@ -71,13 +78,13 @@ class Publicators:
         while True:
             html = PyQuery(response.text)
 
-            self.__file.write_str(path='private/try.html', content=response.text)
-
             TABLE = html.find('table.cols-5.sticky-enabled')
 
-
-            for row in TABLE.find('tbody tr'):
-                results = {
+            temporarys = []
+            urls_card = []
+            for index, row in enumerate(TABLE.find('tbody tr')):
+                urls_card.append(self.__url_complement(self.__parser.ex(html=row, selector='td:first-child a').attr('href')))
+                temp = {
                     "crawler_time": str(datetime.now()),
                     "crawler_time_epoch": int(time()),
                     "domain": self.MAIN_DOMAIN,
@@ -101,22 +108,36 @@ class Publicators:
                         ],
                     "publication_date": self.__parser.ex(html=row, selector='td:nth-child(3)').text(),
                     "publication_type": self.__parser.ex(html=row, selector='td:last-child a').text(),
-                    "contents": self.__extract_data(url_article=self.__url_complement(self.__parser.ex(html=row, selector='td:first-child a').attr('href')))
+                    "contents": ""
                 }
 
-                self.__file.write_json(path=f'data/json/{vname(results["title"])}.json', content=results)
+                temporarys.append(temp)
 
-                logger.info(f'page: {page}')
-                logger.info(f'status: {response.status_code}')
-                logger.info(f'link: {results["link"]}')
-                logger.info(f'title: {results["title"]}')
-                logger.info(f'pdf: {results["contents"]["file_name"]}')
-                page+=1
-                print()
 
+            data_card = [self.__executor.submit(self.__extract_data, url) for url in tqdm(urls_card, 
+                                                                                          ascii=True, 
+                                                                                          smoothing=0.1,
+                                                                                          desc=f'EXTRACT_DATA_PAGE: {page} ',
+                                                                                          total=len(urls_card))]
+                
+            
+            self.__executor.shutdown(wait=True)
+
+            for temporary, data in tqdm(zip(temporarys, data_card), 
+                                        ascii=True, 
+                                        smoothing=0.1, 
+                                        desc=f'ZIP_DATA_PAGE: {page} ',
+                                        total=len(data_card)):
+                
+                temporary["contents"] = data
+                self.__file.write_json(path=f'data/json/{vname(temporary["title"])}.json', content=temporary)
+
+            print()
 
             try:
-                response = requests.get(self.MAIN_URL+html.find('#sipri-2016-content a[title="Go to next page"]').attr('href'))
+                response = requests.get(self.MAIN_URL+html.find('#sipri-2016-content a[title="Go to next page"]').attr('href'), timeout=10)
+                page+=1
+                break
             except Exception:
                 logger.warning('content is out!')
                 break
