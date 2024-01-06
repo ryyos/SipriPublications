@@ -1,0 +1,46 @@
+{
+  "crawler_time": "2024-01-06 15:57:52.533277",
+  "crawler_time_epoch": 1704531472,
+  "domain": "www.sipri.org",
+  "link": "https://www.sipri.org/publications/search?page=1",
+  "tags": "www.sipri.org",
+  "category": "SIPRI Publications",
+  "title": "Artificial Intelligence for Climate Security: Possibilities and Challenges",
+  "author": [
+    {
+      "name": "Dr Kyungmee Kim",
+      "profile": "https://www.sipri.org/about/bios/dr-kyungmee-kim"
+    },
+    {
+      "name": "Dr Vincent Boulanin",
+      "profile": "https://www.sipri.org/about/bios/dr-vincent-boulanin"
+    }
+  ],
+  "research_locations": [
+    {
+      "area": "Climate change and security",
+      "profile": "https://www.sipri.org/research/peace-and-development/climate-change-and-risk/climate-change-and-security"
+    },
+    {
+      "area": "Climate change and risk",
+      "profile": "https://www.sipri.org/research/peace-and-development/climate-change-and-risk"
+    },
+    {
+      "area": "Artificial intelligence",
+      "profile": "https://www.sipri.org/research/armament-and-disarmament/emerging-military-and-security-technologies/artificial-intelligence"
+    },
+    {
+      "area": "Mistra Geopolitics",
+      "profile": "https://www.sipri.org/research/peace-and-development/climate-change-and-risk/mistra-geopolitics"
+    }
+  ],
+  "publication_date": "2023 - December",
+  "publication_type": "Policy reports",
+  "contents": {
+    "url_content": "https://www.sipri.org/publications/2023/policy-reports/artificial-intelligence-climate-security-possibilities-and-challenges",
+    "description": "Recent advances in artificial intelligence (AI)—largely based on machine learning—offer possibilities for addressing climate-related security risks. AI can, for example, be used for developing disaster early-warning systems and enhancing long-term climate hazard modelling, reducing the risk that the impacts of climate change will lead to insecurity and conflict. This SIPRI Policy Report, funded by Mistra Geopolitics, outlines the opportunities that AI presents for managing climate-related security risks. It gives examples of the use of AI in the field and delves into the challenges—notably methodological and ethical—associated with the use of AI for climate security. The report concludes with recommendations for policymakers and researchers who are active in the area of climate security or who use AI for sustainability.",
+    "about_author": [],
+    "file_name": "2312_sipri_policy_report_ai_for_climate_security_1.pdf",
+    "path_data_raw": "data/pdf/2312_sipri_policy_report_ai_for_climate_security_1.pdf"
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "crawler_time": "2024-01-06 15:57:46.979732",
+  "crawler_time_epoch": 1704531466,
+  "domain": "www.sipri.org",
+  "link": "https://www.sipri.org/publications/search?page=1",
+  "tags": "www.sipri.org",
+  "category": "SIPRI Publications",
+  "title": "Another Budget for a Country at War: Military Expenditure in Russia’s Federal Budget for 2024 and Beyond",
+  "author": [
+    {
+      "name": "Professor Julian Cooper",
+      "profile": "https://www.sipri.org/about/bios/professor-julian-cooper"
+    }
+  ],
+  "research_locations": [
+    {
+      "area": "Military expenditure",
+      "profile": "https://www.sipri.org/research/armament-and-disarmament/arms-and-military-expenditure/military-expenditure"
+    },
+    {
+      "area": "Arms and military expenditure",
+      "profile": "https://www.sipri.org/research/armament-and-disarmament/arms-and-military-expenditure"
+    },
+    {
+      "area": "Transparency in military expenditure",
+      "profile": "https://www.sipri.org/research/armament-and-disarmament/arms-and-military-expenditure/transparency-military-expenditure"
+    },
+    {
+      "area": "Armament and disarmament",
+      "profile": "https://www.sipri.org/research/armament-and-disarmament"
+    }
+  ],
+  "publication_date": "2023 - December",
+  "publication_type": "SIPRI Insights on Peace and Security",
+  "contents": {
+    "url_content": "https://www.sipri.org/publications/2023/sipri-insights-peace-and-security/another-budget-country-war-military-expenditure-russias-federal-budget-2024-and-beyond",
+    "description": "Russia’s war against Ukraine has been waged for over 650 days and has had a significant impact on the country’s economy and society. In April 2023 work started on a new three-year federal budget, which was signed into law at the end of November. It is based on a relatively optimistic economic forecast and is striking for the sharp increase in military spending planned for 2024. Spending under the budget chapter ‘national defence’ is expected to account for 29 per cent of total budget expenditure. This means that total military expenditure will increase to 7.1 per cent of GDP in 2024. Military spending is not the same as spending on the war: there are additional costs, some shown in the new budget. The budget indicates that the Russian government is firmly committed to pursuing the war to a successful conclusion, accepting that this will put pressure on social and economic spending.",
+    "about_author": [],
+    "file_name": "sipriinsights_2312_11_russian_milex_for_2024_0.pdf",
+    "path_data_raw": "data/pdf/sipriinsights_2312_11_russian_milex_for_2024_0.pdf"
+  }
+}

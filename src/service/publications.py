@@ -1,7 +1,7 @@
 import requests
 
 from pyquery import PyQuery
-from time import time, sleep
+from time import time
 from datetime import datetime
 from icecream import ic
 from urllib import request
@@ -69,7 +69,6 @@ class Publicators:
         page = 1
         response = requests.get(url=self.MAIN_URL)
         while True:
-            ic(response)
             html = PyQuery(response.text)
 
             self.__file.write_str(path='private/try.html', content=response.text)
@@ -106,19 +105,20 @@ class Publicators:
                 }
 
                 self.__file.write_json(path=f'data/json/{vname(results["title"])}.json', content=results)
-                ic('done')
 
-            
+                logger.info(f'page: {page}')
                 logger.info(f'status: {response.status_code}')
                 logger.info(f'link: {results["link"]}')
                 logger.info(f'title: {results["title"]}')
                 logger.info(f'pdf: {results["contents"]["file_name"]}')
+                page+=1
                 print()
 
 
             try:
                 response = requests.get(self.MAIN_URL+html.find('#sipri-2016-content a[title="Go to next page"]').attr('href'))
             except Exception:
+                logger.warning('content is out!')
                 break
 
 
