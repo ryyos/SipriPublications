@@ -5,19 +5,15 @@ from time import time, sleep
 from datetime import datetime
 from icecream import ic
 from urllib import request
-from APIRetrys import ApiRetry
-from concurrent.futures import ThreadPoolExecutor, wait
 from tqdm import tqdm
 
 from src.utils.parser import Parser
-from src.utils.logs import logger
 from src.utils.corrector import vname
 from src.utils.fileIO import File
 
 class Publicators:
     def __init__(self) -> None:
         
-        self.__executor = ThreadPoolExecutor()
         self.__parser = Parser()
         self.__file = File()
         
@@ -80,11 +76,13 @@ class Publicators:
 
         TABLE = html.find('table.cols-5.sticky-enabled')
 
-        temporarys = []
-        urls_card = []
-        for index, row in enumerate(TABLE.find('tbody tr')):
-            urls_card.append(self.__url_complement(self.__parser.ex(html=row, selector='td:first-child a').attr('href')))
-            temp = {
+        for row in tqdm(TABLE.find('tbody tr'), 
+                        ascii=True, 
+                        smoothing=0.1,
+                        desc=f'EXTRACT_DATA_PAGE: {url_page.split("=")[-1]}',
+                        total=len(TABLE.find('tbody tr'))):
+
+            results = {
                 "crawler_time": str(datetime.now()),
                 "crawler_time_epoch": int(time()),
                 "domain": self.MAIN_DOMAIN,
@@ -108,33 +106,10 @@ class Publicators:
                     ],
                 "publication_date": self.__parser.ex(html=row, selector='td:nth-child(3)').text(),
                 "publication_type": self.__parser.ex(html=row, selector='td:last-child a').text(),
-                "contents": ""
+                "contents": self.__extract_data(url_article=self.__url_complement(self.__parser.ex(html=row, selector='td:first-child a').attr('href')))
             }
 
-            temporarys.append(temp)
-
-
-        # data_card = [self.__executor.submit(self.__extract_data, url) for url in tqdm(urls_card, 
-        #                                                                               ascii=True, 
-        #                                                                               smoothing=0.1,
-        #                                                                               desc=f'EXTRACT_DATA_PAGE: {page} ',
-        #                                                                               total=len(urls_card))]
-        
-        data_card = [self.__extract_data(url_article=url) for url in tqdm(urls_card, 
-                                                                            ascii=True, 
-                                                                            smoothing=0.1,
-                                                                            desc=f'EXTRACT_DATA_PAGE: {url_page.split("=")[-1]}',
-                                                                            total=len(urls_card))]
-        # wait(data_card)
-        for temporary, data in tqdm(zip(temporarys, data_card), 
-                                    ascii=True, 
-                                    smoothing=0.1, 
-                                    desc=f'ZIP_DATA_PAGE: {url_page.split("=")[-1]} ',
-                                    total=len(data_card)):
-            
-            # temporary["contents"] = data.result()
-            temporary["contents"] = data
-            self.__file.write_json(path=f'data/json/{vname(temporary["title"])}.json', content=temporary)
+            self.__file.write_json(path=f'data/json/{vname(results["title"])}.json', content=results)
 
 
 

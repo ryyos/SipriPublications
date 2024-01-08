@@ -123,6 +123,7 @@ celerybeat.pid
 .env
 .venv
 private
+data
 env/
 venv/
 ENV/

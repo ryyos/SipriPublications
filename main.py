@@ -1,4 +1,5 @@
 import requests
+import os
 
 from pyquery import PyQuery
 from time import perf_counter
@@ -46,6 +47,11 @@ class Main:
         
 
 if __name__=='__main__':
+
+    if not os.path.exists('data'):
+        os.mkdir('data')
+        os.mkdir('data/json')
+        os.mkdir('data/pdf')
 
     start = perf_counter()
     logger.info('Scraping start..')
