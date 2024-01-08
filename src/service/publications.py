@@ -6,7 +6,7 @@ from datetime import datetime
 from icecream import ic
 from urllib import request
 from APIRetrys import ApiRetry
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, wait
 from tqdm import tqdm
 
 from src.utils.parser import Parser
@@ -34,10 +34,14 @@ class Publicators:
     
     
     def __curl(self, path: str,url: str):
-        if url: request.urlretrieve(url, path)
+        try:
+            if url: request.urlretrieve(url, path)
+        except Exception:
+            pass
     
     
     def __extract_data(self, url_article: str) -> dict:
+
         response = requests.get(url=url_article)
         html = PyQuery(response.text)
         
@@ -68,79 +72,70 @@ class Publicators:
         return content
     
 
-    def __fetch_data_card(self):
-        pass
-        
     
-    def main(self):
-        page = 1
-        response = requests.get(url=self.MAIN_URL)
-        while True:
-            html = PyQuery(response.text)
+    def main(self, url_page: str):
+        
+        response = requests.get(url=url_page)
+        html = PyQuery(response.text)
 
-            TABLE = html.find('table.cols-5.sticky-enabled')
+        TABLE = html.find('table.cols-5.sticky-enabled')
 
-            temporarys = []
-            urls_card = []
-            for index, row in enumerate(TABLE.find('tbody tr')):
-                urls_card.append(self.__url_complement(self.__parser.ex(html=row, selector='td:first-child a').attr('href')))
-                temp = {
-                    "crawler_time": str(datetime.now()),
-                    "crawler_time_epoch": int(time()),
-                    "domain": self.MAIN_DOMAIN,
-                    "link": self.MAIN_URL+html.find('#sipri-2016-content a[title="Go to next page"]').attr('href'),
-                    "tags": self.MAIN_DOMAIN,
-                    "category": self.__parser.ex(html=html, selector='#sipri-2016-breadcrumbs a').text(),
-                    "title": self.__parser.ex(html=row, selector='td:first-child').text(),
-                    "author":
-                        [
-                            {
-                                "name": PyQuery(author).text(),
-                                "profile": self.__url_complement(PyQuery(author).attr('href')),
-                            } for author in self.__parser.ex(html=row, selector='td:nth-child(2) a')
-                        ],
-                    "research_locations": 
-                        [
-                            {
-                                "area": PyQuery(location).text(),
-                                "profile": self.__url_complement(PyQuery(location).attr('href'))
-                            } for location in self.__parser.ex(html=row, selector='td:nth-child(4) a')
-                        ],
-                    "publication_date": self.__parser.ex(html=row, selector='td:nth-child(3)').text(),
-                    "publication_type": self.__parser.ex(html=row, selector='td:last-child a').text(),
-                    "contents": ""
-                }
+        temporarys = []
+        urls_card = []
+        for index, row in enumerate(TABLE.find('tbody tr')):
+            urls_card.append(self.__url_complement(self.__parser.ex(html=row, selector='td:first-child a').attr('href')))
+            temp = {
+                "crawler_time": str(datetime.now()),
+                "crawler_time_epoch": int(time()),
+                "domain": self.MAIN_DOMAIN,
+                "link": self.MAIN_URL+html.find('#sipri-2016-content a[title="Go to next page"]').attr('href'),
+                "tags": self.MAIN_DOMAIN,
+                "category": self.__parser.ex(html=html, selector='#sipri-2016-breadcrumbs a').text(),
+                "title": self.__parser.ex(html=row, selector='td:first-child').text(),
+                "author":
+                    [
+                        {
+                            "name": PyQuery(author).text(),
+                            "profile": self.__url_complement(PyQuery(author).attr('href')),
+                        } for author in self.__parser.ex(html=row, selector='td:nth-child(2) a')
+                    ],
+                "research_locations": 
+                    [
+                        {
+                            "area": PyQuery(location).text(),
+                            "profile": self.__url_complement(PyQuery(location).attr('href'))
+                        } for location in self.__parser.ex(html=row, selector='td:nth-child(4) a')
+                    ],
+                "publication_date": self.__parser.ex(html=row, selector='td:nth-child(3)').text(),
+                "publication_type": self.__parser.ex(html=row, selector='td:last-child a').text(),
+                "contents": ""
+            }
 
-                temporarys.append(temp)
+            temporarys.append(temp)
 
 
-            data_card = [self.__executor.submit(self.__extract_data, url) for url in tqdm(urls_card, 
-                                                                                          ascii=True, 
-                                                                                          smoothing=0.1,
-                                                                                          desc=f'EXTRACT_DATA_PAGE: {page} ',
-                                                                                          total=len(urls_card))]
-                
+        # data_card = [self.__executor.submit(self.__extract_data, url) for url in tqdm(urls_card, 
+        #                                                                               ascii=True, 
+        #                                                                               smoothing=0.1,
+        #                                                                               desc=f'EXTRACT_DATA_PAGE: {page} ',
+        #                                                                               total=len(urls_card))]
+        
+        data_card = [self.__extract_data(url_article=url) for url in tqdm(urls_card, 
+                                                                            ascii=True, 
+                                                                            smoothing=0.1,
+                                                                            desc=f'EXTRACT_DATA_PAGE: {url_page.split("=")[-1]}',
+                                                                            total=len(urls_card))]
+        # wait(data_card)
+        for temporary, data in tqdm(zip(temporarys, data_card), 
+                                    ascii=True, 
+                                    smoothing=0.1, 
+                                    desc=f'ZIP_DATA_PAGE: {url_page.split("=")[-1]} ',
+                                    total=len(data_card)):
             
-            self.__executor.shutdown(wait=True)
+            # temporary["contents"] = data.result()
+            temporary["contents"] = data
+            self.__file.write_json(path=f'data/json/{vname(temporary["title"])}.json', content=temporary)
 
-            for temporary, data in tqdm(zip(temporarys, data_card), 
-                                        ascii=True, 
-                                        smoothing=0.1, 
-                                        desc=f'ZIP_DATA_PAGE: {page} ',
-                                        total=len(data_card)):
-                
-                temporary["contents"] = data
-                self.__file.write_json(path=f'data/json/{vname(temporary["title"])}.json', content=temporary)
-
-            print()
-
-            try:
-                response = requests.get(self.MAIN_URL+html.find('#sipri-2016-content a[title="Go to next page"]').attr('href'), timeout=10)
-                page+=1
-                break
-            except Exception:
-                logger.warning('content is out!')
-                break
 
 
     

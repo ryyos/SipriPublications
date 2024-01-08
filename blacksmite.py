@@ -25,13 +25,13 @@ class Main:
 
             try:
                 url_page = self.MAIN_URL+html.find('#sipri-2016-content a[title="Go to next page"]').attr('href')
-                all_page_urls.append(url_page)
             except Exception:
                 break
 
             logger.info(f'Fetch url page: {page}')
             page+=1
 
+            all_page_urls.append(url_page)
             response = requests.get(url_page)
 
 
@@ -40,8 +40,6 @@ class Main:
                                             total=len(all_page_urls)):
             sipri = Publicators()
             self.__executor.submit(sipri.main, page_url)
-            
-        self.__executor.shutdown(wait=True)
 
         
 
@@ -49,8 +47,8 @@ if __name__=='__main__':
 
     start = perf_counter()
     logger.info('Scraping start..')
-
-    main = Main()
-    main.execute()
+    print()
     
+
+
     logger.info(f'total scraping time: {perf_counter() - start}')
